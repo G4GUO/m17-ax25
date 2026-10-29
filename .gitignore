@@ -11,3 +11,4 @@ out/
 .nfs*
 core
 .DS_Store
+tests/test_kiss

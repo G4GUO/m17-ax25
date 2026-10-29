@@ -47,9 +47,25 @@ reasoning and the spec citations.
 | Outstanding frames | one in flight, immutable once queued |
 | Duplicate suppression | byte-equality only; no parsing of frame contents |
 
+## Layout
+
+    src/kiss.h         KISS framing API (decoder state machine, encoder)
+    src/kiss.c         implementation
+    tests/test_kiss.c  golden vectors, escaping, overrun, max-size round trip
+    docs/design.md     protocol notes and the reasoning behind the decisions
+
+## Building and testing
+
+    make          # build and run the tests
+    make san      # same tests under ASan/UBSan
+
+No dependencies beyond a C11 compiler.
+
 ## Status
 
-Repository created; design captured. Implementation pending.
+KISS framing is implemented and tested (48 checks, clean under ASan/UBSan).
+Next: M17 packet assembly — type byte, CRC-16, 25-byte chunking with the
+EOF/byte-count metadata, and the reassembler for the receive path.
 
 ## Licence
 
