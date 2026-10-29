@@ -49,10 +49,14 @@ reasoning and the spec citations.
 
 ## Layout
 
-    src/kiss.h         KISS framing API (decoder state machine, encoder)
-    src/kiss.c         implementation
-    tests/test_kiss.c  golden vectors, escaping, overrun, max-size round trip
-    docs/design.md     protocol notes and the reasoning behind the decisions
+    src/kiss.h          KISS framing API (decoder state machine, encoder)
+    src/kiss.c          implementation
+    src/m17_packet.h    LSF, payload chunking and reassembly API
+    src/m17_packet.c    CRC-16, base-40 addresses, 25-byte framing
+    tests/test_kiss.c   golden vectors, escaping, overrun, max-size round trip
+    tests/test_m17_packet.c  CRC and address vectors, LSF layout, chunking,
+                             round trip, reassembly error handling
+    docs/design.md      protocol notes and the reasoning behind the decisions
 
 ## Building and testing
 
@@ -63,9 +67,10 @@ No dependencies beyond a C11 compiler.
 
 ## Status
 
-KISS framing is implemented and tested (48 checks, clean under ASan/UBSan).
-Next: M17 packet assembly — type byte, CRC-16, 25-byte chunking with the
-EOF/byte-count metadata, and the reassembler for the receive path.
+KISS framing and M17 packet framing are implemented and tested (48 + 130
+checks, clean under ASan/UBSan). Next: the KISS-to-burst bridge — the queue,
+the access loop and the socket — which lives in the radio application, not
+here.
 
 ## Licence
 

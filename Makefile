@@ -2,24 +2,26 @@ CC      ?= cc
 CFLAGS  ?= -std=c11 -O2 -Wall -Wextra -pedantic
 CPPFLAGS += -Isrc
 
-SRC   := src/kiss.c
-TESTS := tests/test_kiss.c
-BIN   := tests/test_kiss
+BINS := tests/test_kiss tests/test_m17_packet
 
 .PHONY: all test san clean
 
 all: test
 
-test: $(BIN)
-	@./$(BIN)
+test: $(BINS)
+	@./tests/test_kiss
+	@./tests/test_m17_packet
 
-$(BIN): $(SRC) $(TESTS) src/kiss.h
-	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ $(SRC) $(TESTS)
+tests/test_kiss: src/kiss.c tests/test_kiss.c src/kiss.h
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ src/kiss.c tests/test_kiss.c
+
+tests/test_m17_packet: src/m17_packet.c tests/test_m17_packet.c src/m17_packet.h
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ src/m17_packet.c tests/test_m17_packet.c
 
 # Same tests under ASan/UBSan, to catch buffer arithmetic mistakes in the
-# escape and overrun paths that a passing assertion would hide.
+# escape, chunking and reassembly paths that a passing assertion would hide.
 san: CFLAGS := -std=c11 -g -O1 -Wall -Wextra -pedantic -fsanitize=address,undefined -fno-omit-frame-pointer
 san: clean test
 
 clean:
-	rm -f $(BIN)
+	rm -f $(BINS)
