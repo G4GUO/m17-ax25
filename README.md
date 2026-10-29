@@ -53,9 +53,12 @@ reasoning and the spec citations.
     src/kiss.c          implementation
     src/m17_packet.h    LSF, payload chunking and reassembly API
     src/m17_packet.c    CRC-16, base-40 addresses, 25-byte framing
+    src/m17_bridge.h    queue and channel-access state machine API
+    src/m17_bridge.c    duplicate suppression, backoff, voice priority, guard
     tests/test_kiss.c   golden vectors, escaping, overrun, max-size round trip
     tests/test_m17_packet.c  CRC and address vectors, LSF layout, chunking,
                              round trip, reassembly error handling
+    tests/test_m17_bridge.c  queueing, backoff, voice priority, time wrap
     docs/design.md      protocol notes and the reasoning behind the decisions
 
 ## Building and testing
@@ -67,10 +70,17 @@ No dependencies beyond a C11 compiler.
 
 ## Status
 
-KISS framing and M17 packet framing are implemented and tested (48 + 130
-checks, clean under ASan/UBSan). Next: the KISS-to-burst bridge — the queue,
-the access loop and the socket — which lives in the radio application, not
-here.
+KISS framing, M17 packet framing and the bridge state machine are implemented
+and tested (256 checks, clean under ASan/UBSan). The bridge takes time, DCD, PTT
+and a random word as arguments, so it needs no hardware.
+
+What is deliberately absent is the socket and the modulator. Integration is:
+
+    kiss_decoder_push(&dec, bytes, n, on_frame, &bridge)   /* socket thread */
+    m17_bridge_tick(&bridge, now_ms, dcd, ptt, rand32)     /* main loop      */
+      -> m17_bridge_head() -> m17_pkt_build() -> radio modulator
+      -> m17_bridge_sent() when the EoT has been sent
+    m17_rx_chunk() -> kiss_encode() -> socket write        /* receive path   */
 
 ## Licence
 

@@ -13,3 +13,4 @@ core
 .DS_Store
 tests/test_kiss
 tests/test_m17_packet
+tests/test_m17_bridge
