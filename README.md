@@ -63,15 +63,37 @@ reasoning and the spec citations.
 
 ## Building and testing
 
-    make          # build and run the tests
+    make          # build and run the unit tests, then the tool
     make san      # same tests under ASan/UBSan
+    make itest    # loopback integration test: two KISS clients, no radio
 
 No dependencies beyond a C11 compiler.
+
+## Trying it without a radio
+
+    make tool
+    ./tools/m17bridge --kiss-port 8001 --control-port 8002 --enable 1 --loopback 1
+
+Point a KISS client (BPQ's `IPADDR`/`TCPPORT` port, `kissattach` through
+`kissnetd`, or a script) at port 8001 and drive the bridge from port 8002:
+
+    enable             accept KISS frames and transmit them
+    disable            drop KISS frames, counted but not reported to the host
+    loopback on|off    echo what would be transmitted, or just report it
+    status             one line: state and counters
+    help, quit
+
+Frames are delivered to every connected client, as a shared simplex channel
+would be, so a single client sees its own frames echoed back and a two-client
+setup behaves like two stations. Each frame is built into a real M17 packet -
+CRC, 25-byte chunks, EOF/byte count - and reassembled again, so the loopback
+exercises the whole chain rather than short-circuiting it.
 
 ## Status
 
 KISS framing, M17 packet framing and the bridge state machine are implemented
-and tested (256 checks, clean under ASan/UBSan). The bridge takes time, DCD, PTT
+and tested (256 unit checks, clean under ASan/UBSan), plus a working KISS
+server with loopback (20 integration checks). The bridge takes time, DCD, PTT
 and a random word as arguments, so it needs no hardware.
 
 What is deliberately absent is the socket and the modulator. Integration is:

@@ -17,3 +17,6 @@ jobs:
         run: make test CC=${{ matrix.cc }}
       - name: Sanitizers
         run: make san CC=${{ matrix.cc }}
+      - name: Loopback integration test
+        if: matrix.cc == 'gcc'
+        run: make itest
