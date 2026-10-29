@@ -1,0 +1,13 @@
+*.o
+*.d
+*.a
+*.so
+*.bin
+*.raw
+build/
+out/
+*.bak
+*.bak-*
+.nfs*
+core
+.DS_Store
