@@ -37,13 +37,13 @@ reasoning and the spec citations.
 
 | Decision | Choice |
 |---|---|
-| Payload type identifier | `0x01` AX.25 (accept `0x00` RAW and `0x02` APRS on RX) |
+| Payload type identifier | `0x00` RAW, per M17-KISS basic mode (accept `0x01`/`0x02` on RX) |
 | LSF destination | BROADCAST `FF:FF:FF:FF:FF:FF` for unproto traffic |
 | LSF source | the callsign of the station keying the burst, not the AX.25 originator |
 | FCS | none — KISS carries the frame without it, M17's CRC-16 covers the burst |
 | Fragmentation | 25-byte chunks, EOF bit + valid-byte count in the last frame |
 | Max payload | 823 bytes total; frames over 822 are dropped |
-| Host API | KISS over TCP (radio listens, host connects), M17-KISS basic mode |
+| Host API | KISS over TCP (radio listens, host connects), M17-KISS **basic** mode only |
 | Outstanding frames | one in flight, immutable once queued |
 | Duplicate suppression | byte-equality only; no parsing of frame contents |
 

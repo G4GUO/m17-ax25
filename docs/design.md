@@ -92,11 +92,20 @@ what the radio application already keeps as its LSF buffer.
 * **SSIDs** live in the AX.25 header. If an SSID is also encoded in the M17
   address as a suffix (`G4GUO-9`), note that 9 characters is the limit and long
   calls truncate.
-* **Type identifier**: transmit `0x01`. Note that M17-KISS §5.1 says the TNC
-  marks basic-mode content as RAW (`0x00`), so accept `0x00`, `0x01` and `0x02`
-  on receive and document the divergence.
+* **Type identifier**: transmit `0x00` RAW, as M17-KISS §5.1 prescribes for basic
+  mode. The payload really is AX.25, so the semantic identifier would be `0x01`;
+  the station therefore accepts `0x00`, `0x01` and `0x02` on receive and treats
+  them alike.
 
 ## 5. Host interface
+
+**M17-KISS basic packet mode only** (port 0, command 0). The host sends frame
+bytes and receives frame bytes; the radio owns the LSF entirely. That LSF is
+constant — broadcast DST, configured callsign, type RAW, CAN 0, zeroed META — so
+it is built once at startup and reused for every burst, which the spec permits
+for back-to-back packets. Full packet mode (port 1, host-supplied LSF) is
+deliberately not implemented: it would only serve a bespoke M17-aware host, and
+BPQ cannot use it.
 
 KISS over TCP. The radio **listens**; the host connects (this mirrors Direwolf's
 KISSPORT on 8001 and UZ7HO's 8100).
@@ -160,10 +169,7 @@ An 823-byte frame is 1.3 s of air *after* any channel wait, so:
 
 ## 8. Open questions
 
-* Whether to adopt M17-KISS Full Packet Mode (port 1, 30-byte LSF supplied by the
-  host) in addition to basic mode. BPQ cannot use it; a bespoke host could.
+* Full packet mode (port 1) is not planned; revisit only if a host appears that
+  can supply its own LSF and wants directed addressing.
 * Whether to expose DCD/TX-complete on a side channel for hosts that can use it.
   KISS has no standard mechanism, and the kernel stack has nowhere to put it.
-* Whether the type byte should follow M17-KISS (RAW 0x00) or the semantic
-  application table (AX.25 0x01) — currently `0x01`, on the argument that the
-  payload really is AX.25.
